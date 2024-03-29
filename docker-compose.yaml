@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  nginx:
+    build:
+      context: ./docker/local/nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./docker/local/php
+      dockerfile: Dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    build:
+      context: ./docker/local/mysql
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      MYSQL_DATABASE: $DB_DATABASE
+      MYSQL_USER: $DB_USERNAME
+      MYSQL_PASSWORD: $DB_PASSWORD
+      MYSQL_ROOT_PASSWORD: YF92Any81vs8yzd6
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - mysql:/var/lib/mysql
+
+  redis:
+    build:
+      context: ./docker/local/redis
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+
+  node:
+    image: node:21.0.0
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - default
+    volumes:
+      - ./:/app
+    depends_on:
+      - php
+
+volumes:
+  mysql:
+  redis:
+
+networks:
+  default:
+    driver: bridge
