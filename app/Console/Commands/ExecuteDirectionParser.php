@@ -43,7 +43,9 @@ class ExecuteDirectionParser extends Command
             'errors_count' => count($this->exceptionsBag),
         ]);
 
-        throw array_pop($this->exceptionsBag);
+        if ([] !== $this->exceptionsBag) {
+            throw array_pop($this->exceptionsBag);
+        }
     }
 
     private function processDirection(Direction $direction): void
