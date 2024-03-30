@@ -12,6 +12,7 @@ RUN set -eux \
         libintl \
         make \
         gmp-dev \
+        supervisor \
         libzip-dev \
         zip
 
@@ -41,13 +42,19 @@ RUN set -eux \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+COPY files/php.ini /usr/local/etc/php/php.ini
+COPY files/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY files/supervisor/scheduler.conf /etc/supervisor/supervisord.conf
+COPY files/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+WORKDIR /var/www
+
 RUN addgroup -g ${GID} --system laravel
 RUN adduser -G laravel --system -D -s /bin/sh -u ${UID} laravel
 
-COPY files/php.ini /usr/local/etc/php/php.ini
-COPY files/php-fpm.conf /usr/local/etc/php-fpm.conf
-
-WORKDIR /var/www
+RUN mkdir -p /var/www/storage
 
 RUN sed -i "s/user = www-data/user = laravel/g" /usr/local/etc/php-fpm.d/www.conf
 RUN sed -i "s/group = www-data/group = laravel/g" /usr/local/etc/php-fpm.d/www.conf
@@ -56,4 +63,5 @@ RUN echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 RUN chown -R laravel:laravel /var/www
 RUN chmod 755 /var/www
 
-CMD ["php-fpm", "--nodaemonize"]
+ENTRYPOINT ["/entrypoint.sh"]
+
