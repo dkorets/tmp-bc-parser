@@ -43,6 +43,8 @@ class ExecuteDirectionParser extends Command
             'errors_count' => count($this->exceptionsBag),
         ]);
 
+        sleep(50); // TODO: because cron is triggered each few seconds
+
         if ([] !== $this->exceptionsBag) {
             throw array_pop($this->exceptionsBag);
         }
