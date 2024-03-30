@@ -2,7 +2,6 @@
 
 check: composer-check cs-check phpstan-check test
 check-changed: composer-check cs-check-changed phpstan-check-changed test
-db-refresh: db-reset db-migrate
 
 up: ## Create and start the services
 	docker compose up --detach
@@ -15,9 +14,6 @@ composer-check: ## Check the platform requirements
 
 composer-install: ## Install the dependencies
 	docker compose exec php sh -lc 'composer install'
-
-db-reset: ## database drop and create
-	docker compose exec php sh -lc 'php artisan db:drop && php artisan db:create'
 
 db-migrate: ##start the database migration
 	docker compose exec php sh -lc 'php artisan migrate'

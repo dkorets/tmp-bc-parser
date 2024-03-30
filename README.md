@@ -20,7 +20,7 @@ make generate-app-key
 ```
 
 ```shell
-make db-refresh
+make db-migrate
 ```
 
 App might be running here!
