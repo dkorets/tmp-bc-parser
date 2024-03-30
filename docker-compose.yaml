@@ -31,6 +31,19 @@ services:
       - mysql
       - redis
 
+  scheduler:
+      build:
+        context: ./docker/local/php
+        dockerfile: DockerfileScheduler
+        args:
+          - UID=${UID:-1000}
+          - GID=${GID:-1000}
+      volumes:
+        - ./:/var/www
+      depends_on:
+        - php
+      restart: unless-stopped
+
   mysql:
     build:
       context: ./docker/local/mysql
