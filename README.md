@@ -23,4 +23,8 @@ make generate-app-key
 make db-migrate
 ```
 
+``` fix permissions
+sudo chmod -R ugo+rw storage
+```
+
 App might be running here!
