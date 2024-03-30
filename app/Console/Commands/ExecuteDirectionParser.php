@@ -18,7 +18,7 @@ class ExecuteDirectionParser extends Command
 
     protected $description = 'Execute bestchange parser for each direction';
 
-    private array $exceptionsBag;
+    private array $exceptionsBag = [];
 
     public function __construct(
         private readonly LoggerInterface $logger,
