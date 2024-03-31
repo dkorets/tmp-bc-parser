@@ -9,6 +9,7 @@ use App\Models\Direction;
 use App\Repository\DirectionRepository;
 use App\Services\ProcessorInterface;
 use Illuminate\Http\JsonResponse;
+use Psr\Log\LoggerInterface;
 
 class ParseAction extends Controller
 {
@@ -16,7 +17,12 @@ class ParseAction extends Controller
         ParseBestChangeRequest $request,
         ProcessorInterface $processor,
         DirectionRepository $repository,
+        LoggerInterface $logger,
     ): JsonResponse {
+        $logger->debug('Incoming /api/directions request', [
+            'data' => $request->all(),
+        ]);
+
         $targets = $request->targets();
 
         $directions = $repository->foundByTargets($targets);
