@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\Direction;
 use App\Repository\DirectionRepository;
+use App\Services\HtmlParser;
 use App\Services\ProcessorCacheDecorator;
 use App\Services\Scrapper;
 use Illuminate\Console\Command;
@@ -25,6 +26,7 @@ class ExecuteDirectionParser extends Command
         private readonly DirectionRepository $repository,
         private readonly Scrapper $scrapper,
         private readonly Repository $cache,
+        private readonly HtmlParser $htmlParser,
     ) {
         parent::__construct();
     }
@@ -61,7 +63,10 @@ class ExecuteDirectionParser extends Command
 
             $this->cache->set(
                 ProcessorCacheDecorator::buildCacheKey($direction),
-                $data,
+                $this->htmlParser->convertToCollection(
+                    $direction,
+                    $data->getBody()->getContents(),
+                ),
                 ProcessorCacheDecorator::CACHE_TTL_SECONDS,
             );
         } catch (\Throwable $exception) {
