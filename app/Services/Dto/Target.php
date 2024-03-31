@@ -23,9 +23,9 @@ readonly class Target
     public static function fromArray(array $data): self
     {
         return new self(
-            $data['from'],
-            $data['to'],
-            $data['city'],
+            (int) $data['from'],
+            (int) $data['to'],
+            (int) $data['city'],
         );
     }
 }
