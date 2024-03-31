@@ -40,9 +40,9 @@ class HtmlParser
             $cells = $row->getElementsByTagName('td');
 
             $row = new TableRow(
-                strtolower(explode(' ', $cells[1]->nodeValue)[0]),
-                new Decimal(explode(' ', $cells[2]->nodeValue)[0]),
-                new Decimal(explode(' ', $cells[3]->nodeValue)[0]),
+                strtolower(explode(' ', $cells[1]->childNodes->item(0)->childNodes->item(1)->nodeValue)[0]),
+                new Decimal(explode(' ', $cells[2]->childNodes->item(0)->childNodes->item(0)->nodeValue)[0]),
+                new Decimal(str_replace(' ', '', $cells[3]->childNodes->item(0)->nodeValue)),
                 $position,
             );
 

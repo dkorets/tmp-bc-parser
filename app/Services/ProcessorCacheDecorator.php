@@ -38,11 +38,11 @@ class ProcessorCacheDecorator implements ProcessorInterface
     public function handleSingle(Direction $direction): TableRows
     {
         // TODO: add cache hitrate metric, if $direction->usage > 0 or $direction->enabled = false
-        $cacheData = $this->cache->get($this->buildCacheKey($direction));
-
-        if (null !== $cacheData) {
-            return $cacheData;
-        }
+//        $cacheData = $this->cache->get($this->buildCacheKey($direction));
+//
+//        if (null !== $cacheData) {
+//            return $cacheData;
+//        }
 
         return $this->processor->handleSingle($direction);
     }
