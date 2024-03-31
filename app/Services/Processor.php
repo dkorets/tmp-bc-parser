@@ -8,6 +8,8 @@ use App\Models\Direction;
 use App\Repository\DirectionRepository;
 use App\Services\Dto\TableRows;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Response;
+use Psr\Log\LoggerInterface;
 
 readonly class Processor implements ProcessorInterface
 {
@@ -15,6 +17,7 @@ readonly class Processor implements ProcessorInterface
         private Scrapper            $scrapper,
         private HtmlParser          $htmlParser,
         private DirectionRepository $repository,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -39,15 +42,35 @@ readonly class Processor implements ProcessorInterface
      */
     public function handleSingle(Direction $direction): TableRows
     {
-        $response = $this->scrapper->fetchRates(
-            $direction->from,
-            $direction->to,
-            $direction->city,
-        );
-
         $direction->enabled = true;
         $direction->save();
         $this->repository->incrementUsage($direction);
+
+        try {
+            $response = $this->scrapper->fetchRates(
+                $direction->from,
+                $direction->to,
+                $direction->city,
+            );
+        } catch (\Throwable $throwable) {
+            $this->logger->error('Bestchange scrapper request failed', [
+                'direction' => $direction->toArray(),
+                'error_message' => $throwable->getMessage(),
+                'exception' => $throwable->getTraceAsString(),
+            ]);
+
+            return new TableRows($direction);
+        }
+
+        if ($response->getStatusCode() > Response::HTTP_OK) {
+            $this->logger->error('Bestchange scrapper error response', [
+                'direction' => $direction->toArray(),
+                'response_status' => $response->getStatusCode(),
+                'response_body' => $response->getBody()->getContents(),
+            ]);
+
+            return new TableRows($direction);
+        }
 
         return $this->htmlParser->convertToCollection(
             $direction,
